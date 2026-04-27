@@ -1,9 +1,10 @@
 {
   "dependencies": {
     "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "init": "^0.1.2",
-    "mysql2": "^3.22.2"
+    "mysql2": "^3.22.3"
   },
   "name": "backend",
   "version": "1.0.0",
