@@ -15,7 +15,7 @@ function TodoItem({
     <li className="todo-item">
       <input
         type="checkbox"
-        checked={todo.isChecked}
+        checked={Boolean(todo.isChecked)}
         onChange={onCheck}
       />
 

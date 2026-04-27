@@ -41,6 +41,7 @@ body.dark-mode .app {
   color: #f0f0f0;
 }
 
+/* Heading */
 h1 {
   font-family: Georgia, sans-serif;
   text-align: center;
@@ -64,7 +65,7 @@ h1 {
   font-size: 16px;
   background-color: #fff;
   color: #000;
-  transition: background-color 0.3s, color 0.3s;
+  transition: 0.3s;
 }
 
 .add-input,
@@ -90,14 +91,12 @@ body.dark-mode .search-input {
   border-radius: 5px;
   font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
   border: none;
   color: white;
 }
 
 .light-button {
   background-color: black;
-  color: white;
 }
 
 .dark-button {
@@ -125,7 +124,38 @@ body.dark-mode .search-input {
   margin-bottom: 15px;
 }
 
-/* Theme Toggle */
+/* Status text (FIXED DUPLICATE HERE) */
+.status-font {
+  font-family: "Inter", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.status-font p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Icons */
+.icon {
+  font-size: 18px;
+}
+
+.icon.total {
+  color: #4a90e2;
+}
+
+.icon.completed {
+  color: #2ecc71;
+}
+
+.icon.pending {
+  color: #f39c12;
+}
+
+/* Theme toggle */
 .theme {
   display: flex;
   flex-direction: column;
@@ -140,7 +170,14 @@ body.dark-mode .search-input {
   color: inherit;
 }
 
-/* Responsive styles */
+/* Error */
+.error-text {
+  color: red;
+  font-size: 14px;
+  margin: 6px;
+}
+
+/* Responsive */
 @media (max-width: 600px) {
   #root {
     padding: 1rem;
@@ -149,12 +186,10 @@ body.dark-mode .search-input {
   .app {
     padding: 20px;
     margin: 10px;
-    border-radius: 8px;
   }
 
   .input-section {
     flex-direction: column;
-    align-items: stretch;
   }
 
   .input,
@@ -165,31 +200,7 @@ body.dark-mode .search-input {
     font-size: 14px;
   }
 
-  .theme {
-    align-items: center;
-  }
-
   h1 {
     font-size: 24px;
-  }
-
-  .todo-item {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 10px;
-  }
-
-  .todo-item span {
-    font-size: 18px;
-  }
-
-  .edit-input {
-    font-size: 14px;
-    width: 100%;
-  }
-
-  .timestamp {
-    margin-left: 0;
-    margin-top: 6px;
   }
 }

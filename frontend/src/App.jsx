@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
+import { FaListUl, FaCheckCircle, FaClock } from "react-icons/fa";
 import TodoItem from "./components/TodoItem";
 import API from "./api";
 import "./App.css";
 
 function App() {
   const [todos, setTodos] = useState([]);
-
   const [input, setInput] = useState("");
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState("");
+  const [error, setError] = useState("");
 
-  // Theme (unchanged)
+  // Theme
   const [isDark, setIsDark] = useState(() => {
     const storedTheme = localStorage.getItem("isDark");
     return storedTheme ? JSON.parse(storedTheme) : false;
@@ -19,13 +20,10 @@ function App() {
 
   useEffect(() => {
     localStorage.setItem("isDark", JSON.stringify(isDark));
-  }, [isDark]);
-
-  useEffect(() => {
     document.body.className = isDark ? "dark-mode" : "light-mode";
   }, [isDark]);
 
-  // 🔥 LOAD FROM MYSQL
+  // Load todos
   useEffect(() => {
     fetchTodos();
   }, []);
@@ -39,16 +37,37 @@ function App() {
     }
   };
 
-  // ➕ ADD
+  // Add todo
   const addTodo = async () => {
-    if (input.trim() === "") return;
+    if (input.trim() === "") {
+      setError("Task is required!");
+      return;
+    }
 
+    setError("");
     await API.post("/", { text: input });
     setInput("");
     fetchTodos();
   };
 
-  // ✅ TOGGLE
+  // Input handlers
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setInput(value.charAt(0).toUpperCase() + value.slice(1));
+    if (value.trim() !== "") setError("");
+  };
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearch(value.charAt(0).toUpperCase() + value.slice(1));
+  };
+
+  const handleEditInputChange = (e) => {
+    const value = e.target.value;
+    setEditText(value.charAt(0).toUpperCase() + value.slice(1));
+  };
+
+  // Toggle check
   const toggleCheck = async (id) => {
     const todo = todos.find((t) => t.id === id);
 
@@ -60,13 +79,13 @@ function App() {
     fetchTodos();
   };
 
-  // ❌ DELETE
+  // Delete
   const deleteTodo = async (id) => {
     await API.delete(`/${id}`);
     fetchTodos();
   };
 
-  // ✏ EDIT
+  // Edit
   const startEditing = (id, text) => {
     setEditingId(id);
     setEditText(text);
@@ -92,47 +111,28 @@ function App() {
     fetchTodos();
   };
 
-  // 🔍 FILTER
+  // Filter
   const filteredTodos = todos.filter((todo) =>
     todo.text.toLowerCase().includes(search.toLowerCase())
   );
 
-  // ✨ INPUT HANDLING (unchanged)
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    const capitalized = value.charAt(0).toUpperCase() + value.slice(1);
-    setInput(capitalized);
-  };
-
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    const capitalized = value.charAt(0).toUpperCase() + value.slice(1);
-    setSearch(capitalized);
-  };
-
-  const handleEditInputChange = (e) => {
-    const value = e.target.value;
-    const capitalized = value.charAt(0).toUpperCase() + value.slice(1);
-    setEditText(capitalized);
-  };
-
-  const toggleTheme = () => setIsDark(!isDark);
-
-  // 📊 STATUS
+  // Status
   const total = todos.length;
-  const completed = todos.filter((todo) => todo.isChecked).length;
+  const completed = todos.filter((t) => t.isChecked).length;
   const pending = total - completed;
 
   return (
-    <div className={`app ${isDark ? "dark" : "light"} `}>
+    <div className={`app ${isDark ? "dark" : "light"}`}>
+      {/* Theme toggle */}
       <div className="theme">
-        <button className="theme-toggle" onClick={toggleTheme}>
+        <button className="theme-toggle" onClick={() => setIsDark(!isDark)}>
           <i className={`fa ${isDark ? "fa-sun" : "fa-moon"}`}></i>
         </button>
       </div>
 
       <h1>Todo List</h1>
 
+      {/* Search */}
       <input
         type="text"
         className="input search-input"
@@ -141,6 +141,7 @@ function App() {
         onChange={handleSearchChange}
       />
 
+      {/* Add */}
       <div className="input-section">
         <input
           type="text"
@@ -149,6 +150,7 @@ function App() {
           value={input}
           onChange={handleInputChange}
         />
+
         <button
           onClick={addTodo}
           className={`button ${isDark ? "dark-button" : "light-button"}`}
@@ -157,12 +159,27 @@ function App() {
         </button>
       </div>
 
-      <div className="status">
-        <p><i className="fa fa-list-ul"></i> Total: {total}</p>
-        <p><i className="fa fa-check-circle"></i> Completed: {completed}</p>
-        <p><i className="fa fa-hourglass-half"></i> Pending: {pending}</p>
-      </div>
+      {error && <p className="error-text">{error}</p>}
 
+      {/* STATUS */}
+<div className="status status-font">
+  <p className="status-item">
+    <FaListUl className="icon total" />
+    Total: {total}
+  </p>
+
+  <p className="status-item">
+    <FaCheckCircle className="icon completed" />
+    Completed: {completed}
+  </p>
+
+  <p className="status-item">
+    <FaClock className="icon pending" />
+    Pending: {pending}
+  </p>
+</div>
+
+      {/* LIST */}
       <ul className="todo-list">
         {filteredTodos.map((todo) => (
           <TodoItem
