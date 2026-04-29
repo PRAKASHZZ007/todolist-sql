@@ -32,7 +32,6 @@ body.dark-mode {
   border: 1px solid #ddd;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s, color 0.3s;
 }
 
 body.dark-mode .app {
@@ -71,10 +70,6 @@ h1 {
 .add-input,
 .search-input {
   width: 500px;
-}
-
-.search-input {
-  margin-bottom: 10px;
 }
 
 body.dark-mode .input,
@@ -124,7 +119,11 @@ body.dark-mode .search-input {
   margin-bottom: 15px;
 }
 
-/* Status text (FIXED DUPLICATE HERE) */
+.status p {
+  cursor: pointer;
+}
+
+/* Status text */
 .status-font {
   font-family: "Inter", sans-serif;
   font-size: 15px;
@@ -175,6 +174,88 @@ body.dark-mode .search-input {
   color: red;
   font-size: 14px;
   margin: 6px;
+}
+
+/* Search + filter wrapper */
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  position: relative;
+}
+
+/* Search input flexible */
+.search-input {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+
+/* Filter button */
+.filter-btn {
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  height: 40px;
+  margin-bottom: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Light mode filter */
+body.light-mode .filter-btn {
+  background-color: #000;
+}
+
+body.light-mode .filter-icon {
+  color: #fff;
+}
+
+/* Dark mode filter */
+body.dark-mode .filter-btn {
+  background-color: #fff;
+}
+
+body.dark-mode .filter-icon {
+  color: #000;
+}
+
+/* Filter panel */
+.filter-panel {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 160px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  overflow: hidden;
+  z-index: 10;
+}
+
+.filter-panel div {
+  padding: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.filter-panel div:hover {
+  background: #f0f0f0;
+}
+
+/* Clickable status */
+.status-item {
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.status-item:hover {
+  transform: scale(1.05);
 }
 
 /* Responsive */

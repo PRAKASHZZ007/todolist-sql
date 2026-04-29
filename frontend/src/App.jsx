@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
-import { FaListUl, FaCheckCircle, FaClock } from "react-icons/fa";
-import TodoItem from "./components/TodoItem";
 import API from "./api";
+
+import SearchBar from "./components/SearchBar";
+import AddTodo from "./components/AddTodo";
+import ThemeToggle from "./components/ThemeToggle";
+import StatusFilter from "./components/StatusFilter";
+import EmptyState from "./components/EmptyState";
+import TodoList from "./components/TodoList";
+
 import "./App.css";
 
 function App() {
@@ -11,191 +17,128 @@ function App() {
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState("");
   const [error, setError] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [showStatus, setShowStatus] = useState(false);
 
-  // Theme
-  const [isDark, setIsDark] = useState(() => {
-    const storedTheme = localStorage.getItem("isDark");
-    return storedTheme ? JSON.parse(storedTheme) : false;
-  });
+  const [isDark, setIsDark] = useState(
+    JSON.parse(localStorage.getItem("isDark")) || false
+  );
 
   useEffect(() => {
     localStorage.setItem("isDark", JSON.stringify(isDark));
     document.body.className = isDark ? "dark-mode" : "light-mode";
   }, [isDark]);
 
-  // Load todos
   useEffect(() => {
     fetchTodos();
   }, []);
 
   const fetchTodos = async () => {
-    try {
-      const res = await API.get("/");
-      setTodos(res.data);
-    } catch (err) {
-      console.error(err);
-    }
+    const res = await API.get("/");
+    setTodos(res.data);
   };
 
-  // Add todo
   const addTodo = async () => {
-    if (input.trim() === "") {
+    if (!input.trim()) {
       setError("Task is required!");
       return;
     }
-
     setError("");
     await API.post("/", { text: input });
     setInput("");
     fetchTodos();
   };
 
-  // Input handlers
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setInput(value.charAt(0).toUpperCase() + value.slice(1));
-    if (value.trim() !== "") setError("");
-  };
-
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearch(value.charAt(0).toUpperCase() + value.slice(1));
-  };
-
-  const handleEditInputChange = (e) => {
-    const value = e.target.value;
-    setEditText(value.charAt(0).toUpperCase() + value.slice(1));
-  };
-
-  // Toggle check
   const toggleCheck = async (id) => {
     const todo = todos.find((t) => t.id === id);
-
     await API.put(`/${id}`, {
       text: todo.text,
       isChecked: !todo.isChecked,
     });
-
     fetchTodos();
   };
 
-  // Delete
   const deleteTodo = async (id) => {
     await API.delete(`/${id}`);
     fetchTodos();
   };
 
-  // Edit
   const startEditing = (id, text) => {
     setEditingId(id);
     setEditText(text);
   };
 
-  const cancelEditing = () => {
-    setEditingId(null);
-    setEditText("");
-  };
-
   const updateTodo = async () => {
-    if (editText.trim() === "") return;
-
     const todo = todos.find((t) => t.id === editingId);
-
     await API.put(`/${editingId}`, {
       text: editText,
       isChecked: todo.isChecked,
     });
-
     setEditingId(null);
     setEditText("");
     fetchTodos();
   };
 
-  // Filter
-  const filteredTodos = todos.filter((todo) =>
-    todo.text.toLowerCase().includes(search.toLowerCase())
-  );
-
-  // Status
   const total = todos.length;
   const completed = todos.filter((t) => t.isChecked).length;
   const pending = total - completed;
 
+  const filteredTodos = todos
+    .filter((t) => t.text.toLowerCase().includes(search.toLowerCase()))
+    .filter((t) =>
+      filter === "completed"
+        ? t.isChecked
+        : filter === "pending"
+        ? !t.isChecked
+        : true
+    );
+
   return (
     <div className={`app ${isDark ? "dark" : "light"}`}>
-      {/* Theme toggle */}
-      <div className="theme">
-        <button className="theme-toggle" onClick={() => setIsDark(!isDark)}>
-          <i className={`fa ${isDark ? "fa-sun" : "fa-moon"}`}></i>
-        </button>
-      </div>
+      <ThemeToggle isDark={isDark} setIsDark={setIsDark} />
 
       <h1>Todo List</h1>
 
-      {/* Search */}
-      <input
-        type="text"
-        className="input search-input"
-        placeholder="Search tasks..."
-        value={search}
-        onChange={handleSearchChange}
+      <SearchBar
+        search={search}
+        setSearch={setSearch}
+        toggleFilter={() => setShowStatus(!showStatus)}
       />
 
-      {/* Add */}
-      <div className="input-section">
-        <input
-          type="text"
-          className="input add-input"
-          placeholder="Add a task..."
-          value={input}
-          onChange={handleInputChange}
-        />
-
-        <button
-          onClick={addTodo}
-          className={`button ${isDark ? "dark-button" : "light-button"}`}
-        >
-          Add
-        </button>
-      </div>
+      <AddTodo
+        input={input}
+        setInput={setInput}
+        addTodo={addTodo}
+        isDark={isDark}
+        setError={setError}
+      />
 
       {error && <p className="error-text">{error}</p>}
 
-      {/* STATUS */}
-<div className="status status-font">
-  <p className="status-item">
-    <FaListUl className="icon total" />
-    Total: {total}
-  </p>
+      {showStatus && (
+        <StatusFilter
+          total={total}
+          completed={completed}
+          pending={pending}
+          setFilter={setFilter}
+        />
+      )}
 
-  <p className="status-item">
-    <FaCheckCircle className="icon completed" />
-    Completed: {completed}
-  </p>
-
-  <p className="status-item">
-    <FaClock className="icon pending" />
-    Pending: {pending}
-  </p>
-</div>
-
-      {/* LIST */}
-      <ul className="todo-list">
-        {filteredTodos.map((todo) => (
-          <TodoItem
-            key={todo.id}
-            todo={todo}
-            onCheck={() => toggleCheck(todo.id)}
-            onDelete={() => deleteTodo(todo.id)}
-            onEdit={() => startEditing(todo.id, todo.text)}
-            isEditing={editingId === todo.id}
-            editText={editText}
-            onEditChange={handleEditInputChange}
-            onUpdate={updateTodo}
-            onCancel={cancelEditing}
-          />
-        ))}
-      </ul>
+      {filteredTodos.length === 0 ? (
+        <EmptyState search={search} filter={filter} />
+      ) : (
+        <TodoList
+          todos={filteredTodos}
+          toggleCheck={toggleCheck}
+          deleteTodo={deleteTodo}
+          startEditing={startEditing}
+          editingId={editingId}
+          editText={editText}
+          setEditText={setEditText}
+          updateTodo={updateTodo}
+          setEditingId={setEditingId}
+        />
+      )}
     </div>
   );
 }

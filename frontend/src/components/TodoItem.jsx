@@ -11,6 +11,8 @@ function TodoItem({
   onUpdate,
   onCancel,
 }) {
+  const status = todo.isChecked ? "Completed" : "Pending";
+
   return (
     <li className="todo-item">
       <input
@@ -27,12 +29,8 @@ function TodoItem({
             onChange={onEditChange}
             className="edit-input"
           />
-          <button onClick={onUpdate} className="update-button">
-            ✔
-          </button>
-          <button onClick={onCancel} className="cancel-button">
-            ✖
-          </button>
+          <button onClick={onUpdate} className="update-button">✔</button>
+          <button onClick={onCancel} className="cancel-button">✖</button>
         </>
       ) : (
         <>
@@ -41,7 +39,6 @@ function TodoItem({
               {todo.text}
             </span>
 
-            {/* ✅ FIXED DATE */}
             <small className="timestamp">
               {todo.created_at
                 ? new Date(todo.created_at).toLocaleString()
@@ -49,9 +46,17 @@ function TodoItem({
             </small>
           </div>
 
+          {/* STATUS LABEL */}
+          <div className={`status-label ${status.toLowerCase()}`}>
+            {status}
+          </div>
+
+
+
           <button onClick={onEdit} className="edit-button">
             <i className="fa fa-pencil"></i>
           </button>
+          
 
           <button onClick={onDelete} className="delete-button">
             <i className="fa fa-trash"></i>
